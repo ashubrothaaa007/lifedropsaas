@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "LifeDrop REST API",
+    "_postman_id": "3b30fbf1-7158-4f06-9819-c1eefee3ab7d",
+    "description": "Use the same base URL and Postman cookie jar for login and subsequent calls. Replace local variables with test credentials; do not commit secrets. Donor/hospital/receiver permissions are checked server-side.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "email", "value": "" },
+    { "key": "password", "value": "" },
+    { "key": "role", "value": "donor" },
+    { "key": "hospitalId", "value": "" },
+    { "key": "requestId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/lifedrop/auth",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"action\":\"login\",\"email\":\"{{email}}\",\"password\":\"{{password}}\",\"role\":\"{{role}}\"}"
+        }
+      }
+    },
+    {
+      "name": "Current session",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/lifedrop/auth" }
+    },
+    {
+      "name": "Role-scoped dashboard data",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/lifedrop/data" }
+    },
+    {
+      "name": "Create blood request (receiver only)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/lifedrop/data",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"action\":\"request\",\"bloodGroup\":\"O+\",\"city\":\"Mumbai\",\"units\":1,\"urgency\":\"normal\",\"hospital\":\"{{hospitalId}}\"}"
+        }
+      }
+    },
+    {
+      "name": "Accept matching request (donor only)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/lifedrop/data",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"action\":\"respond\",\"requestId\":\"{{requestId}}\",\"decision\":\"accepted\"}"
+        }
+      }
+    },
+    {
+      "name": "Create stock entry (verified hospital only)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/lifedrop/data",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"action\":\"inventory\",\"bloodGroup\":\"O+\",\"units\":12}"
+        }
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/lifedrop/auth",
+        "body": { "mode": "raw", "raw": "{\"action\":\"logout\"}" }
+      }
+    }
+  ]
+}
